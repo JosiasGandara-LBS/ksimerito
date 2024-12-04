@@ -60,8 +60,8 @@ export class AppComponent {
 		const habilitados = localStorage.getItem('regalosHabilitados');
 		const deshabilitados = localStorage.getItem('regalosDeshabilitados');
 
-		this.regalosHabilitados = habilitados ? JSON.parse(habilitados) : [14, 7, 22, 15, 16, 21, 13, 5, 1, 8, 4, 2, 17, 6, 12, 10, 20];
-		this.regalosDeshabilitados = deshabilitados ? JSON.parse(deshabilitados) : [3, 18, 9, 11, 23, 24, 19];
+		this.regalosHabilitados = habilitados ? JSON.parse(habilitados) : [14, 7, 22, 15, 16, 13, 5, 1, 8, 4, 2, 17, 6, 10, 20];
+		this.regalosDeshabilitados = deshabilitados ? JSON.parse(deshabilitados) : [3, 18, 9, 11, 23, 24, 19, 21, 12];
 	}
 
 	saveRegalosToStorage(): void {
@@ -70,40 +70,56 @@ export class AppComponent {
 	}
 
 	verificarCodigo(numeroRegalo: number): void {
-		const lastObtainedDate = localStorage.getItem('lastObtainedDate');
 		const today = new Date().toLocaleDateString('es-ES');
+		const interactionData = this.getDailyInteractionData();
 
-		if (lastObtainedDate === today) {
-			alert('Ya has obtenido un regalo hoy. Por favor, vuelve mañana.');
-			return;
+		if (interactionData.date !== today) {
+		  // Nuevo día: reinicia contador
+		  interactionData.date = today;
+		  interactionData.interactions = 0;
+		}
+
+		if (interactionData.interactions >= 2) {
+		  alert('Ya has obtenido el número máximo de regalos por hoy. Vuelve mañana.');
+		  return;
 		}
 
 		this.cardVisibleYesNo = false;
 
 		const codigo = this.codigosUsables.find((c) => c.numeroRegalo === numeroRegalo);
 		if (codigo) {
-			this.cardInformation = codigo;
-			this.cardVisibleYesNo = true;
+		  this.cardInformation = codigo;
+		  this.cardVisibleYesNo = true;
 
-			// Mover de habilitados a deshabilitados
-			const indexHabilitado = this.regalosHabilitados.indexOf(numeroRegalo);
-			if (indexHabilitado !== -1) {
+		  // Mover de habilitados a deshabilitados
+		  const indexHabilitado = this.regalosHabilitados.indexOf(numeroRegalo);
+		  if (indexHabilitado !== -1) {
 			this.regalosHabilitados.splice(indexHabilitado, 1);
 			this.regalosDeshabilitados.push(numeroRegalo);
 			this.saveRegalosToStorage(); // Guardar cambios
-			}
+		  }
 
-			// Actualizar la fecha de obtención
-			localStorage.setItem('lastObtainedDate', today);
+		  // Incrementar contador de interacciones
+		  interactionData.interactions++;
+		  this.saveDailyInteractionData(interactionData);
 		}
+	}
+
+	private getDailyInteractionData(): { date: string; interactions: number } {
+		const storedData = localStorage.getItem('dailyInteractions');
+		return storedData ? JSON.parse(storedData) : { date: '', interactions: 0 };
+	}
+
+	private saveDailyInteractionData(data: { date: string; interactions: number }): void {
+		localStorage.setItem('dailyInteractions', JSON.stringify(data));
 	}
 
 	shuffleArray(array: number[]): void {
 		const arrayCopy = [...array];
 
 		for (let i = arrayCopy.length - 1; i > 0; i--) {
-			const randomIndex = Math.floor(Math.random() * (i + 1));
-			[arrayCopy[i], arrayCopy[randomIndex]] = [arrayCopy[randomIndex], arrayCopy[i]];
+		  	const randomIndex = Math.floor(Math.random() * (i + 1));
+		  	[arrayCopy[i], arrayCopy[randomIndex]] = [arrayCopy[randomIndex], arrayCopy[i]];
 		}
 
 		this.numeroRegalo = arrayCopy[0];
