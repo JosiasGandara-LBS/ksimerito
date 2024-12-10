@@ -60,7 +60,7 @@ export class AppComponent {
 		const habilitados = localStorage.getItem('regalosHabilitados');
 		const deshabilitados = localStorage.getItem('regalosDeshabilitados');
 
-		this.regalosHabilitados = habilitados ? JSON.parse(habilitados) :[14, 5, 1, 8, 2, 10]; // [14, 22, 5, 1, 8, 2, 17, 10]
+		this.regalosHabilitados = habilitados ? JSON.parse(habilitados) :[1, 10]; // [14, 22, 5, 1, 8, 2, 17, 10]
 		this.regalosDeshabilitados = deshabilitados ? JSON.parse(deshabilitados) : [18, 3, 7, 15, 16, 21, 13, 4, 6, 12, 23, 24, 9, 11, 20, 19];
 	}
 
